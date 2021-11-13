@@ -1,0 +1,57 @@
+#include <SoftwareSerial.h>
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C lcd(0x27,16,2); 
+/**
+ * RX = 10
+ * TX = 11
+ */
+SoftwareSerial esp8266con(10, 11); 
+
+
+void setup()  {
+
+ 
+  lcd.init();
+  lcd.backlight();
+  lcd.setCursor(0,0);
+  lcd.print("Min = ");
+  lcd.setCursor(0,1);
+  lcd.print("Min = ");
+
+  Serial.begin(115200);
+  esp8266con.begin(57600);
+  Serial.println("\n\n\nStart arduino from ArduinoNa.com");
+
+}
+
+void loop() {
+  
+  while (esp8266con.available() > 0) {
+    char inByte = esp8266con.read();
+    Serial.write(inByte);
+  }
+    //สร้างข้อความที่คั่นด้วย , และปิดท้ายด้วยการขึ้นบรรทัดใหม่ เพื่อส่งไปยัง esp8266  อ่านค่า A0  A1  ส่งค่าไป wifi
+   
+float a = analogRead(A0);
+  a  =  a/17.05 ;
+  lcd.setCursor(7,0);
+  lcd.print(a);
+  delay(1000);
+  
+  float b = analogRead(A1);
+  b  =  b/17.05 ;
+  lcd.setCursor(7,1);
+  lcd.print(b);
+  delay(1000);
+
+
+   String msg = String(a) + "," + String(b) + "\n";
+     
+    esp8266con.write( msg.c_str(), msg.length());
+    Serial.print("Send to arduino - " + msg);
+    delay(10000);
+  }  
+
+อัพเดทล่าสุด
